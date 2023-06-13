@@ -1,5 +1,5 @@
 # TCC_LucasGonzaga_2023
-Projeto apresentado como trabalho de conclusão do curso de engenharia biomédica da UNIFESP.
+Projeto apresentado como trabalho de conclusão do curso de engenharia biomédica da UNIFESP sob orientação do Prof. Dr. Matheus Cardoso Moraes.
 
 Tutorial basico de uso: (link youtube)
 
