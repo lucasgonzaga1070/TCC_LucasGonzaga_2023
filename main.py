@@ -1,4 +1,4 @@
-from backend import *
+from functions import *
 from matplotlib import use
 
 use('Agg')
