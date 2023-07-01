@@ -6,3 +6,6 @@ Tutorial basico de uso: https://youtu.be/XqrVNehUkAE
 Para referencias na configuracao da biblioteca pylidc: https://pylidc.github.io/#tutorials
 
 Para download dos dados utilizados no projeto: https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=1966254
+
+![image](https://github.com/lucasgonzaga1070/TCC_LucasGonzaga_2023/assets/64205786/f2b77f8e-98cc-4698-97df-e88ec828b54b)
+
