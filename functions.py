@@ -1,8 +1,3 @@
-from matplotlib import use
-
-use('Agg')
-use('TkAgg')
-
 import numpy as np
 import skimage.exposure
 from skimage.morphology import *
@@ -12,7 +7,6 @@ import pandas as pd
 import scipy
 import pylidc as pl
 from pylidc.utils import consensus
-import matplotlib.pyplot as plt
 from time import time
 
 
@@ -51,21 +45,35 @@ def dist_coordenada(a, b):
     return np.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2 + (b[2] - a[2]) ** 2)
 
 
+def _largest_connected_component(mask):
+    labeled, num = scipy.ndimage.label(mask)
+    if num == 0:
+        return mask
+    counts = np.bincount(labeled.ravel())
+    counts[0] = 0
+    largest = counts.argmax()
+    return labeled == largest
+
+
 def isola_pulmao_v2(img):
-    index_meio_pulmao = int(img.shape[2]/2)
     lim = skimage.filters.threshold_multiotsu(img)
 
     img = (img > lim[0]) & (img < lim[1])
-    labels = scipy.ndimage.label(img)
-
-    val = labels[0][256, 128, index_meio_pulmao]
-    out = labels[0] == val
+    out = _largest_connected_component(img)
 
     out = skimage.morphology.binary_closing(out, skimage.morphology.ball(10))
     out = out * 65535
     out = out.astype(np.uint16)
 
     return out
+
+
+def normalize_intensity(img, low_percentile=1.0, high_percentile=99.0):
+    low = np.percentile(img, low_percentile)
+    high = np.percentile(img, high_percentile)
+    if low == high:
+        return img
+    return skimage.exposure.rescale_intensity(img, in_range=(low, high))
 
 
 def fuzzy_adpatado(img, gs, roi, sliceNod):
@@ -103,25 +111,7 @@ def fuzzy_adpatado(img, gs, roi, sliceNod):
     # Ajuste de intesidade para melhorar contraste ---------------------------------------------------------------------
     print("Ajuste de intesidade para melhorar contraste")
     s2 = time()
-    hist = skimage.exposure.histogram(img)
-    zeros = 0
-    cont = 2
-
-    lim = []
-    while zeros < 2 and cont < hist[0].size:
-        if hist[0][cont] > 5000 and hist[0][cont - 1] <= 5000 and zeros < 1:
-            zeros += 1
-            lim.append(cont)
-        elif hist[0][cont] < 5000 and hist[0][cont - 1] >= 5000 and zeros >= 1:
-            zeros += 1
-            lim.append(cont)
-        cont += 1
-
-    img = skimage.exposure.rescale_intensity(img, in_range=(hist[1][lim[0]], hist[1][lim[1]]))
-    plt.figure()
-    plt.stem(hist[1][1:], hist[0][1:], markerfmt=".")
-    plt.vlines(hist[1][lim[0]], ymin=0, ymax=hist[0][1:].max(), colors='r')
-    plt.vlines(hist[1][lim[1]], ymin=0, ymax=hist[0][1:].max(), colors='r')
+    img = normalize_intensity(img)
     f2 = time()
     print(f2 - s2)
     # plt.figure()
