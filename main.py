@@ -1,7 +1,6 @@
 from functions import *
 from matplotlib import use
 
-use('Agg')
 use('TkAgg')
 import matplotlib.pyplot as plt
 import pylidc as pl
@@ -212,7 +211,15 @@ class Layer_selector(tkinter.Frame):
         self.master.destroy()
 
 
-path_imgs = pl.query(pl.Scan).order_by(pl.Scan.patient_id).first().get_path_to_dicom_files().split("\\LIDC-IDRI")[0]
+scan_path = pl.query(pl.Scan).order_by(pl.Scan.patient_id).first().get_path_to_dicom_files()
+default_root = os.path.normpath(scan_path)
+default_parts = default_root.split(os.sep)
+if "LIDC-IDRI" in default_parts:
+    default_root = os.sep.join(default_parts[:default_parts.index("LIDC-IDRI")])
+else:
+    default_root = os.path.dirname(default_root)
+
+path_imgs = os.environ.get("LIDC_DATA_ROOT", default_root)
 imgs_list = os.listdir(path_imgs)
 
 img, gs, nod = create_GoldSTD(imgs_list[0])
